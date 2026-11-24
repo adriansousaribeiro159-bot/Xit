@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>FFH4X ANDROID v2.0</title>
+  <style>
+    :root {
+      --bg-dark: #07070b;
+      --bg-panel: #0e0e16;
+      --bg-card: #151521;
+      --bg-card-hover: #1c1c2b;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --text-main: #f4f4f8;
+      --text-muted: #8b8b9e;
+
+      /* Tema Dinâmico (Padrão: Vermelho Neon) */
+      --accent-primary: #ff1e42;
+      --accent-secondary: #9b1fe8;
+      --accent-glow: rgba(255, 30, 66, 0.45);
+      --accent-soft: rgba(255, 30, 66, 0.14);
+      --accent-gradient: linear-gradient(135deg, #ff1e42 0%, #9b1fe8 100%);
+    }
+
+    /* Temas alternativos */
+    body.theme-purple {
+      --accent-primary: #a855f7;
+      --accent-secondary: #ff1e42;
+      --accent-glow: rgba(168, 85, 247, 0.5);
+      --accent-soft: rgba(168, 85, 247, 0.16);
+      --accent-gradient: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+    }
+
+    body.theme-blue {
+      --accent-primary: #00d2ff;
+      --accent-secondary: #7b2cbf;
+      --accent-glow: rgba(0, 210, 255, 0.48);
+      --accent-soft: rgba(0, 210, 255, 0.15);
+      --accent-gradient: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(155, 31, 232, 0.12), transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(255, 30, 66, 0.12), transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+    }
+
+    /* Animação Neon */
+    @keyframes pulseNeon {
+      0%, 100% {
+        box-shadow: 0 0 18px var(--accent-glow), 0 10px 35px rgba(0, 0, 0, 0.85);
+      }
+      50% {
+        box-shadow: 0 0 30px var(--accent-glow), 0 12px 45px rgba(0, 0, 0, 0.9);
+      }
+    }
+
+    body.neon-disabled * {
+      animation: none !important;
+      text-shadow: none !important;
+    }
+
+    body.neon-disabled .floating-panel,
+    body.neon-disabled .login-card {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85) !important;
+    }
+
+    /* ================= TELA DE LOGIN ================= */
+    .login-wrapper {
+      width: 100%;
+      max-width: 390px;
+      padding: 18px;
+      z-index: 20;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .login-wrapper.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95);
+      display: none;
+    }
+
+    .login-card {
+      background: linear-gradient(165deg, #12121c 0%, #09090f 100%);
+      border: 1px solid var(--accent-primary);
+      border-radius: 20px;
+      padding: 30px 24px;
+      animation: pulseNeon 3s infinite ease-in-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-gradient);
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-primary);
+      color: var(--accent-primary);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+
+    .login-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-box input {
+      width: 100%;
+      background: #0b0b12;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 14px 44px 14px 14px;
+      color: #fff;
+      font-size: 15px;
+      letter-spacing: 2px;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      user-select: text;
+    }
+
+    .input-box input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .toggle-pass {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .error-msg {
+      min-height: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #ff4757;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: all 0.25s ease;
+    }
+
+    .error-msg.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--accent-gradient);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px var(--accent-glow);
+      transition: transform 0.15s ease, filter 0.2s ease;
+    }
+
+    .btn-login:active {
+      transform: scale(0.97);
+    }
+
+    .login-footer {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ================= ÁREA DE SIMULAÇÃO ANDROID & OVERLAY ================= */
+    .workspace {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .workspace.active {
+      display: block;
+    }
+
+    /* Círculo FOV Demonstrativo na Tela */
+    .fov-overlay-circle {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-primary);
+      box-shadow: 0 0 18px var(--accent-glow), inset 0 0 14px var(--accent-soft);
+      pointer-events: none;
+      z-index: 5;
+      display: none;
+      transition: width 0.08s linear, height 0.08s linear, border-color 0.25s;
+    }
+
+    .fov-overlay-circle::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      background: var(--accent-primary);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px var(--accent-primary);
+    }
+
+    .fov-overlay-circle.active {
+      display: block;
+    }
+
+    /* Ícone Flutuante Minimizado */
+    .floating-bubble {
+      position: fixed;
+      top: 22px;
+      left: 22px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #0d0d14;
+      border: 2px solid var(--accent-primary);
+      box-shadow: 0 0 18px var(--accent-glow);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      z-index: 100;
+      touch-action: none;
+    }
+
+    .floating-bubble.visible {
+      display: flex;
+    }
+
+    .floating-bubble span {
+      font-weight: 900;
+      font-size: 13px;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ================= PAINEL FLUTUANTE PRINCIPAL ================= */
+    .floating-panel {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 94vw;
+      max-width: 420px;
+      height: 530px;
+      max-height: 86vh;
+      background: var(--bg-panel);
+      border: 1px solid var(--accent-primary);
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 50;
+      animation: pulseNeon 3.5s infinite ease-in-out;
+      transition: opacity 0.25s ease, border-color 0.3s ease;
+    }
+
+    .floating-panel.minimized {
+      display: none;
+    }
+
+    /* Cabeçalho Arrastável */
+    .panel-header {
+      background: linear-gradient(90deg, #13131f 0%, #191326 100%);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .panel-header:active {
+      cursor: grabbing;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      color: #fff;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .header-title-wrap h1 {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.7px;
+      color: #fff;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #2ed573;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #2ed573;
+      box-shadow: 0 0 8px #2ed573;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent-primary);
+    }
+
+    /* Corpo do Painel (Sidebar + Conteúdo) */
+    .panel-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Menu Lateral com Ícones */
+    .sidebar {
+      width: 68px;
+      background: #0a0a10;
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 6px;
+      gap: 10px;
+    }
+
+    .nav-item {
+      width: 54px;
+      padding: 9px 4px;
+      border-radius: 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .nav-item span {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-item.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 0 12px var(--accent-soft);
+    }
+
+    .nav-item.active svg {
+      stroke: var(--accent-primary);
+    }
+
+    /* Área de Conteúdo */
+    .content-area {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .content-area::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .content-area::-webkit-scrollbar-thumb {
+      background: var(--accent-primary);
+      border-radius: 4px;
+    }
+
+    .tab-section {
+      display: none;
+      flex-direction: column;
+      gap: 11px;
+      animation: fadeIn 0.22s ease;
+    }
+
+    .tab-section.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-primary);
+    }
+
+    .demo-tag {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* Cards de Controle */
+    .control-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 11px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .control-card.col {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .control-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .control-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .control-desc {
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    /* Botão Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-round {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #252536;
+      border-radius: 24px;
+      transition: 0.25s;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .slider-round::before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      border-radius: 50%;
+      transition: 0.25s;
+    }
+
+    .switch input:checked + .slider-round {
+      background: var(--accent-gradient);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .switch input:checked + .slider-round::before {
+      transform: translateX(20px);
+    }
+
+    /* Range Slider FOV */
+    .range-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .fov-badge {
+      background: var(--accent-soft);
+      color: var(--accent-primary);
+      border: 1px solid var(--accent-primary);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #252536;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-glow);
+      border: 2px solid #fff;
+    }
+
+    /* Seletores Segmentados (Pills) */
+    .segmented-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .segmented-group.two-cols {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .seg-btn {
+      background: #0d0d15;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 8px 6px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .seg-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 0 10px var(--accent-soft);
+    }
+
+    /* Preview Visual do ESP Demonstrativo */
+    .esp-preview-box {
+      background: radial-gradient(circle at center, #181826 0%, #09090e 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      height: 155px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .esp-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+
+    .esp-dummy-container {
+      position: relative;
+      width: 64px;
+      height: 104px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .esp-dummy-silhouette {
+      width: 34px;
+      height: 82px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0.65;
+    }
+
+    .dummy-head {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #6c6c85;
+      margin-bottom: 3px;
+    }
+
+    .dummy-body {
+      width: 28px;
+      height: 36px;
+      border-radius: 6px;
+      background: #525266;
+      margin-bottom: 3px;
+    }
+
+    .dummy-legs {
+      width: 22px;
+      height: 24px;
+      border-radius: 4px;
+      background: #3f3f52;
+    }
+
+    /* Elementos ESP Visuais no Preview */
+    .esp-el-box {
+      position: absolute;
+      inset: 4px;
+      border: 1.5px solid var(--accent-primary);
+      box-shadow: 0 0 8px var(--accent-glow);
+      display: none;
+    }
+
+    .esp-el-box.visible { display: block; }
+
+    .esp-el-health {
+      position: absolute;
+      left: -6px;
+      top: 4px;
+      bottom: 4px;
+      width: 4px;
+      background: #1e1e2a;
+      border-radius: 2px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .esp-el-health.visible { display: block; }
+
+    .esp-el-health-fill {
+      width: 100%;
+      height: 82%;
+      background: #2ed573;
+      position: absolute;
+      bottom: 0;
+    }
+
+    .esp-el-name {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      font-weight: 800;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 1px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      border: 1px solid var(--accent-primary);
+      display: none;
+    }
+
+    .esp-el-name.visible { display: block; }
+
+    .esp-el-line {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1.5px;
+      height: 32px;
+      background: var(--accent-primary);
+      box-shadow: 0 0 6px var(--accent-primary);
+      display: none;
+    }
+
+    .esp-el-line.visible { display: block; }
+
+    /* Seletor de Cores de Tema */
+    .color-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .color-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 6px;
+      border-radius: 10px;
+      background: #0d0d15;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .color-btn.active {
+      border-color: var(--accent-primary);
+      background: var(--accent-soft);
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .btn-reset {
+      width: 100%;
+      padding: 11px;
+      border-radius: 10px;
+      background: rgba(255, 71, 87, 0.12);
+      border: 1px solid rgba(255, 71, 87, 0.45);
+      color: #ff6b81;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-reset:active {
+      transform: scale(0.98);
+      background: rgba(255, 71, 87, 0.22);
+    }
+
+    /* Botões de Entrada no Jogo */
+    .game-launch-card {
+      background: linear-gradient(145deg, #161624 0%, #0f0f18 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-game {
+      width: 100%;
+      padding: 14px 12px;
+      border: none;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-game.ff-normal {
+      background: linear-gradient(135deg, #ff1e42 0%, #b31237 100%);
+      box-shadow: 0 4px 16px rgba(255, 30, 66, 0.35);
+    }
+
+    .btn-game.ff-max {
+      background: linear-gradient(135deg, #9b1fe8 0%, #5b10a8 100%);
+      box-shadow: 0 4px 16px rgba(155, 31, 232, 0.35);
+    }
+
+    .btn-game:active {
+      transform: scale(0.97);
+    }
+
+    .launch-feedback {
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      background: #0b0b12;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    /* Rodapé do Painel */
+    .panel-footer {
+      padding: 8px 14px;
+      background: #09090f;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* Toast de Confirmação */
+    .toast-container {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 90%;
+      max-width: 360px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(15, 15, 24, 0.96);
+      border-left: 4px solid var(--accent-primary);
+      border-top: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+      animation: toastSlide 0.25s ease forwards;
+    }
+
+    @keyframes toastSlide {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= 1. TELA DE LOGIN ================= -->
+  <div class="login-wrapper" id="loginScreen">
+    <div class="login-card">
+      <div class="brand-badge">● ANDROID UI v2.0</div>
+      <h1 class="login-title">FFH4X ANDROID</h1>
+      <p class="login-subtitle">Autenticação necessária para acessar o painel visual.</p>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="input-group">
+          <label for="passwordInput">Senha de Acesso</label>
+          <div class="input-box">
+            <input type="password" id="passwordInput" placeholder="Digite a senha..." inputmode="numeric" required />
+            <button type="button" class="toggle-pass" id="togglePassBtn" aria-label="Mostrar ou ocultar senha">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="error-msg" id="loginError">
+          <span>⚠</span>
+          <span id="loginErrorText">Senha incorreta. Tente novamente.</span>
+        </div>
+
+        <button type="submit" class="btn-login" id="btnLogin">ENTRAR</button>
+      </form>
+
+      <div class="login-footer">
+        Interface Demonstrativa Independente • Build 2.0
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ÁREA PRINCIPAL DO PAINEL ================= -->
+  <div class="workspace" id="workspace">
+
+    <!-- Círculo FOV Demonstrativo -->
+    <div class="fov-overlay-circle" id="fovCircle"></div>
+
+    <!-- Ícone Flutuante (Modo Minimizado) -->
+    <div class="floating-bubble" id="floatingBubble" title="Abrir Painel">
+      <span>FFH4X</span>
+    </div>
+
+    <!-- 2. PAINEL FLUTUANTE PRINCIPAL -->
+    <div class="floating-panel" id="floatingPanel">
+      <!-- Cabeçalho Arrastável -->
+      <div class="panel-header" id="panelDragHeader">
+        <div class="header-left">
+          <div class="logo-icon">FX</div>
+          <div class="header-title-wrap">
+            <h1>FFH4X ANDROID</h1>
+            <div class="status-pill">
+              <span class="status-dot"></span>
+              <span id="statusText">ATIVO • v2.0</span>
+            </div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="icon-btn" id="btnMinimize" title="Minimizar Painel">—</button>
+          <button type="button" class="icon-btn" id="btnLogout" title="Sair">✕</button>
+        </div>
+      </div>
+
+      <!-- Corpo com Menu Lateral + Conteúdo -->
+      <div class="panel-body">
+        <nav class="sidebar" aria-label="Menu de navegação">
+          <button type="button" class="nav-item active" data-tab="tab-aim">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+            <span>MIRA</span>
+          </button>
+
+          <button type="button" class="nav-item" data-tab="tab-esp">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>ESP</span>
+          </button>
+
+          <button type="button" class="nav-item" data-tab="tab-theme">
+            <svg viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+            <span>VISUAL</span>
+          </button>
+
+          <button type="button" class="nav-item" data-tab="tab-game">
+            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>JOGO</span>
+          </button>
+        </nav>
+
+        <main class="content-area">
+          <!-- ABA 3: CONFIGURAÇÕES VISUAIS -->
+          <section class="tab-section active" id="tab-aim">
+            <div class="section-header">
+              <span class="section-title">Configurações Visuais</span>
+              <span class="demo-tag">MODO DEMO</span>
+            </div>
+
+            <div class="control-card">
+              <div class="control-info">
+                <span class="control-title">Aimbot Rage</span>
+                <span class="control-desc">Simulação visual de resposta rápida</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkAimRage" />
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="control-card">
+              <div class="control-info">
+                <span class="control-title">Aimbot Legit</span>
+                <span class="control-desc">Simulação visual suavizada</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkAimLegit" />
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="control-card">
+              <div class="control-info">
+                <span class="control-title">Exibir FOV</span>
+                <span class="control-desc">Mostra o círculo de alcance na tela</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkShowFov" />
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="control-card col">
+              <div class="range-header">
+                <span class="control-title">Aim FOV</span>
+                <span class="fov-badge" id="fovValueBadge">160°</span>
+              </div>
+              <input type="range" id="rangeAimFov" min="60" max="320" value="160" />
+            </div>
+
+            <div class="control-card col">
+              <span class="control-title">Seletor Puxada</span>
+              <div class="segmented-group" id="puxadaGroup">
+                <button type="button" class="seg-btn active" data-value="Cabeça">Cabeça</button>
+                <button type="button" class="seg-btn" data-value="Pescoço">Pescoço</button>
+                <button type="button" class="seg-btn" data-value="Corpo">Corpo</button>
+              </div>
+            </div>
+
+            <div class="control-card col">
+              <span class="control-title">Tipo de Configuração</span>
+              <div class="segmented-group two-cols" id="triggerModeGroup">
+                <button type="button" class="seg-btn active" data-value="Ao Olhar">Ao Olhar</button>
+                <button type="button" class="seg-btn" data-value="Ao Atirar">Ao Atirar</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 4: ESP DEMONSTRATIVO -->
+          <section class="tab-section" id="tab-esp">
+            <div class="section-header">
+              <span class="section-title">ESP Demonstrativo</span>
+              <span class="demo-tag">PREVIEW INTERNO</span>
+            </div>
+
+            <!-- Pré-visualização interna do ESP -->
+            <div class="esp-preview-box">
+              <div class="esp-grid-bg"></div>
+              <div class="esp-el-line" id="previewEspLine"></div>
+              <div class="esp-dummy-container">
+                <div class="esp-el-name" id="previewEspName">ALVO_DEMO [24m]</div>
+                <div class="esp-el-box" id="previewEspBox"></div>
+                <div class="esp-el-health" id="previewEspHealth">
+                  <div class="esp-el-health-fill"></div>
+                </div>
+                <div class="esp-dummy-silhouette">
+                  <div class="dummy-head"></div>
+                  <div class="dummy-body"></div>
+                  <div class="dummy-legs"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="control-card">
+              <div class="control-info">
+                <span class="control-title">ESP Linha</span>
+                <span class="control-desc">Linha guia no visor demonstrativo</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkEspLine" />
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="control-card">
+              <div class="control-info">
+                <span class="control-title">ESP Caixa</span>
+                <span class="control-desc">Moldura delimitadora no modelo</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkEspBox" />
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="control-card">
+              <div class="control-info">
+                <span class="control-title">ESP Vida</span>
+                <span class="control-desc">Barra lateral de energia simulada</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkEspHealth" />
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <div class="control-card">
+              <div class="control-info">
+                <span class="control-title">ESP Nome</span>
+                <span class="control-desc">Etiqueta de identificação visual</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkEspName" />
+                <span class="slider-round"></span>
+              </label>
+            </div>
+          </section>
+
+          <!-- ABA 5: PERSONALIZAÇÃO -->
+          <section class="tab-section" id="tab-theme">
+            <div class="section-header">
+              <span class="section-title">Personalização</span>
+              <span class="demo-tag">TEMA UI</span>
+            </div>
+
+            <div class="control-card col">
+              <span class="control-title">Cor de Destaque Neon</span>
+              <div class="color-options" id="colorThemeGroup">
+                <button type="button" class="color-btn active" data-theme="red">
+                  <span class="swatch" style="background:#ff1e42; box-shadow:0 0 8px #ff1e42;"></span>
+                  Vermelha
+                </button>
+                <button type="button" class="color-btn" data-theme="purple">
+                  <span class="swatch" style="background:#a855f7; box-shadow:0 0 8px #a855f7;"></span>
+                  Roxa
+                </button>
+                <button type="button" class="color-btn" data-theme="blue">
+                  <span class="swatch" style="background:#00d2ff; box-shadow:0 0 8px #00d2ff;"></span>
+                  Azul
+                </button>
+              </div>
+            </div>
+
+            <div class="control-card">
+              <div class="control-info">
+                <span class="control-title">Animações Neon</span>
+                <span class="control-desc">Efeitos pulsantes nas bordas e brilhos</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkNeonAnim" checked />
+                <span class="slider-round"></span>
+              </label>
+            </div>
+
+            <button type="button" class="btn-reset" id="btnResetSettings">
+              REDEFINIR CONFIGURAÇÕES
+            </button>
+          </section>
+
+          <!-- ABA 6: ENTRADA NO JOGO -->
+          <section class="tab-section" id="tab-game">
+            <div class="section-header">
+              <span class="section-title">Entrada no Jogo</span>
+              <span class="demo-tag">ANDROID INTENT</span>
+            </div>
+
+            <div class="game-launch-card">
+              <button type="button" class="btn-game ff-normal" id="btnLaunchFF">
+                ENTRAR NO FREE FIRE
+              </button>
+
+              <button type="button" class="btn-game ff-max" id="btnLaunchFFMax">
+                ENTRAR NO FREE FIRE MAX
+              </button>
+
+              <div class="launch-feedback" id="launchStatusBox">
+                Selecione uma versão acima para solicitar ao sistema Android a abertura do aplicativo instalado.
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <div class="panel-footer">
+        <span>Arraste o topo para mover</span>
+        <span id="footerSummary">Cabeça • Ao Olhar</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificações Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ================= ESTADO DA SESSÃO ================= */
+      const DEFAULT_STATE = {
+        authenticated: false,
+        aimRage: false,
+        aimLegit: false,
+        showFov: false,
+        aimFov: 160,
+        puxada: "Cabeça",
+        triggerMode: "Ao Olhar",
+        espLine: false,
+        espBox: false,
+        espHealth: false,
+        espName: false,
+        themeColor: "red",
+        neonAnimations: true
+      };
+
+      let appState = Object.assign({}, DEFAULT_STATE);
+
+      /* ================= REFERÊNCIAS DO DOM ================= */
+      const loginScreen = document.getElementById("loginScreen");
+      const loginForm = document.getElementById("loginForm");
+      const passwordInput = document.getElementById("passwordInput");
+      const togglePassBtn = document.getElementById("togglePassBtn");
+      const loginError = document.getElementById("loginError");
+
+      const workspace = document.getElementById("workspace");
+      const floatingPanel = document.getElementById("floatingPanel");
+      const panelDragHeader = document.getElementById("panelDragHeader");
+      const floatingBubble = document.getElementById("floatingBubble");
+      const btnMinimize = document.getElementById("btnMinimize");
+      const btnLogout = document.getElementById("btnLogout");
+      const fovCircle = document.getElementById("fovCircle");
+      const footerSummary = document.getElementById("footerSummary");
+      const toastContainer = document.getElementById("toastContainer");
+
+      /* Controles Aba Mira */
+      const chkAimRage = document.getElementById("chkAimRage");
+      const chkAimLegit = document.getElementById("chkAimLegit");
+      const chkShowFov = document.getElementById("chkShowFov");
+      const rangeAimFov = document.getElementById("rangeAimFov");
+      const fovValueBadge = document.getElementById("fovValueBadge");
+      const puxadaButtons = document.querySelectorAll("#puxadaGroup .seg-btn");
+      const triggerButtons = document.querySelectorAll("#triggerModeGroup .seg-btn");
+
+      /* Controles Aba ESP */
+      const chkEspLine = document.getElementById("chkEspLine");
+      const chkEspBox = document.getElementById("chkEspBox");
+      const chkEspHealth = document.getElementById("chkEspHealth");
+      const chkEspName = document.getElementById("chkEspName");
+      const previewEspLine = document.getElementById("previewEspLine");
+      const previewEspBox = document.getElementById("previewEspBox");
+      const previewEspHealth = document.getElementById("previewEspHealth");
+      const previewEspName = document.getElementById("previewEspName");
+
+      /* Controles Aba Personalização */
+      const colorButtons = document.querySelectorAll("#colorThemeGroup .color-btn");
+      const chkNeonAnim = document.getElementById("chkNeonAnim");
+      const btnResetSettings = document.getElementById("btnResetSettings");
+
+      /* Controles Aba Jogo */
+      const btnLaunchFF = document.getElementById("btnLaunchFF");
+      const btnLaunchFFMax = document.getElementById("btnLaunchFFMax");
+      const launchStatusBox = document.getElementById("launchStatusBox");
+
+      /* ================= NOTIFICAÇÕES TOAST ================= */
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transform = "translateY(8px)";
+          toast.style.transition = "all 0.2s ease";
+          setTimeout(() => toast.remove(), 220);
+        }, 2300);
+      }
+
+      /* ================= 1. SISTEMA DE LOGIN ================= */
+      const ACCESS_KEY = "13022026";
+
+      togglePassBtn.addEventListener("click", () => {
+        const isPass = passwordInput.type === "password";
+        passwordInput.type = isPass ? "text" : "password";
+      });
+
+      passwordInput.addEventListener("input", () => {
+        loginError.classList.remove("visible");
+      });
+
+      loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const entered = passwordInput.value.trim();
+
+        if (entered === ACCESS_KEY) {
+          appState.authenticated = true;
+          loginError.classList.remove("visible");
+          loginScreen.classList.add("hidden");
+          workspace.classList.add("active");
+          syncUIWithState();
+          showToast("Login autorizado! Bem-vindo ao FFH4X ANDROID v2.0.");
+        } else {
+          loginError.classList.add("visible");
+          passwordInput.focus();
+          passwordInput.select();
+        }
+      });
+
+      btnLogout.addEventListener("click", () => {
+        appState.authenticated = false;
+        passwordInput.value = "";
+        workspace.classList.remove("active");
+        loginScreen.classList.remove("hidden");
+        showToast("Sessão encerrada.");
+      });
+
+      /* ================= 2. NAVEGAÇÃO ENTRE ABAS ================= */
+      const navItems = document.querySelectorAll(".nav-item");
+      const tabSections = document.querySelectorAll(".tab-section");
+
+      navItems.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.getAttribute("data-tab");
+          navItems.forEach((item) => item.classList.remove("active"));
+          tabSections.forEach((sec) => sec.classList.remove("active"));
+
+          btn.classList.add("active");
+          const targetSec = document.getElementById(targetId);
+          if (targetSec) targetSec.classList.add("active");
+        });
+      });
+
+      /* Minimizar / Restaurar Painel */
+      btnMinimize.addEventListener("click", () => {
+        floatingPanel.classList.add("minimized");
+        floatingBubble.classList.add("visible");
+        showToast("Painel minimizado para o ícone flutuante.");
+      });
+
+      floatingBubble.addEventListener("click", () => {
+        if (floatingBubble.dataset.dragged === "true") {
+          floatingBubble.dataset.dragged = "false";
+          return;
+        }
+        floatingBubble.classList.remove("visible");
+        floatingPanel.classList.remove("minimized");
+      });
+
+      /* ================= ARRASTAR PAINEL E BOLHA NA TELA ================= */
+      function makeDraggable(element, handle) {
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let initialLeft = 0;
+        let initialTop = 0;
+
+        const onPointerDown = (e) => {
+          if (e.target.closest("button")) return;
+          isDragging = true;
+          element.dataset.dragged = "false";
+
+          const rect = element.getBoundingClientRect();
+          element.style.transform = "none";
+          element.style.left = rect.left + "px";
+          element.style.top = rect.top + "px";
+
+          startX = e.clientX;
+          startY = e.clientY;
+          initialLeft = rect.left;
+          initialTop = rect.top;
+
+          handle.setPointerCapture(e.pointerId);
+        };
+
+        const onPointerMove = (e) => {
+          if (!isDragging) return;
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+
+          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+            element.dataset.dragged = "true";
+          }
+
+          const maxLeft = window.innerWidth - element.offsetWidth;
+          const maxTop = window.innerHeight - element.offsetHeight;
+
+          const newLeft = Math.max(0, Math.min(maxLeft, initialLeft + dx));
+          const newTop = Math.max(0, Math.min(maxTop, initialTop + dy));
+
+          element.style.left = newLeft + "px";
+          element.style.top = newTop + "px";
+        };
+
+        const onPointerUp = (e) => {
+          if (!isDragging) return;
+          isDragging = false;
+          if (handle.hasPointerCapture(e.pointerId)) {
+            handle.releasePointerCapture(e.pointerId);
+          }
+        };
+
+        handle.addEventListener("pointerdown", onPointerDown);
+        handle.addEventListener("pointermove", onPointerMove);
+        handle.addEventListener("pointerup", onPointerUp);
+      }
+
+      makeDraggable(floatingPanel, panelDragHeader);
+      makeDraggable(floatingBubble, floatingBubble);
+
+      /* ================= 3. CONFIGURAÇÕES VISUAIS ================= */
+      chkAimRage.addEventListener("change", () => {
+        appState.aimRage = chkAimRage.checked;
+        if (appState.aimRage && appState.aimLegit) {
+          appState.aimLegit = false;
+          chkAimLegit.checked = false;
+        }
+        showToast(`Aimbot Rage (Demo): ${appState.aimRage ? "ATIVADO" : "DESATIVADO"}`);
+      });
+
+      chkAimLegit.addEventListener("change", () => {
+        appState.aimLegit = chkAimLegit.checked;
+        if (appState.aimLegit && appState.aimRage) {
+          appState.aimRage = false;
+          chkAimRage.checked = false;
+        }
+        showToast(`Aimbot Legit (Demo): ${appState.aimLegit ? "ATIVADO" : "DESATIVADO"}`);
+      });
+
+      chkShowFov.addEventListener("change", () => {
+        appState.showFov = chkShowFov.checked;
+        fovCircle.classList.toggle("active", appState.showFov);
+        showToast(`Exibir FOV: ${appState.showFov ? "ATIVADO" : "DESATIVADO"}`);
+      });
+
+      rangeAimFov.addEventListener("input", () => {
+        appState.aimFov = Number(rangeAimFov.value);
+        updateFovVisual();
+      });
+
+      rangeAimFov.addEventListener("change", () => {
+        showToast(`Aim FOV ajustado para ${appState.aimFov}°`);
+      });
+
+      function updateFovVisual() {
+        fovValueBadge.textContent = appState.aimFov + "°";
+        fovCircle.style.width = appState.aimFov + "px";
+        fovCircle.style.height = appState.aimFov + "px";
+      }
+
+      puxadaButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          puxadaButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          appState.puxada = btn.getAttribute("data-value");
+          updateFooterSummary();
+          showToast(`Puxada selecionada: ${appState.puxada}`);
+        });
+      });
+
+      triggerButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          triggerButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          appState.triggerMode = btn.getAttribute("data-value");
+          updateFooterSummary();
+          showToast(`Configuração definida: ${appState.triggerMode}`);
+        });
+      });
+
+      function updateFooterSummary() {
+        footerSummary.textContent = `${appState.puxada} • ${appState.triggerMode}`;
+      }
+
+      /* ================= 4. ESP DEMONSTRATIVO ================= */
+      chkEspLine.addEventListener("change", () => {
+        appState.espLine = chkEspLine.checked;
+        previewEspLine.classList.toggle("visible", appState.espLine);
+        showToast(`ESP Linha (Demo): ${appState.espLine ? "ATIVADO" : "DESATIVADO"}`);
+      });
+
+      chkEspBox.addEventListener("change", () => {
+        appState.espBox = chkEspBox.checked;
+        previewEspBox.classList.toggle("visible", appState.espBox);
+        showToast(`ESP Caixa (Demo): ${appState.espBox ? "ATIVADO" : "DESATIVADO"}`);
+      });
+
+      chkEspHealth.addEventListener("change", () => {
+        appState.espHealth = chkEspHealth.checked;
+        previewEspHealth.classList.toggle("visible", appState.espHealth);
+        showToast(`ESP Vida (Demo): ${appState.espHealth ? "ATIVADO" : "DESATIVADO"}`);
+      });
+
+      chkEspName.addEventListener("change", () => {
+        appState.espName = chkEspName.checked;
+        previewEspName.classList.toggle("visible", appState.espName);
+        showToast(`ESP Nome (Demo): ${appState.espName ? "ATIVADO" : "DESATIVADO"}`);
+      });
+
+      /* ================= 5. PERSONALIZAÇÃO ================= */
+      function applyThemeColor(theme) {
+        document.body.classList.remove("theme-purple", "theme-blue");
+        if (theme === "purple") {
+          document.body.classList.add("theme-purple");
+        } else if (theme === "blue") {
+          document.body.classList.add("theme-blue");
+        }
+        colorButtons.forEach((btn) => {
+          btn.classList.toggle("active", btn.getAttribute("data-theme") === theme);
+        });
+      }
+
+      colorButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const chosen = btn.getAttribute("data-theme");
+          appState.themeColor = chosen;
+          applyThemeColor(chosen);
+          const names = { red: "Vermelha", purple: "Roxa", blue: "Azul" };
+          showToast(`Cor do tema alterada para ${names[chosen]}.`);
+        });
+      });
+
+      chkNeonAnim.addEventListener("change", () => {
+        appState.neonAnimations = chkNeonAnim.checked;
+        document.body.classList.toggle("neon-disabled", !appState.neonAnimations);
+        showToast(`Animações Neon: ${appState.neonAnimations ? "ATIVADAS" : "DESATIVADAS"}`);
+      });
+
+      btnResetSettings.addEventListener("click", () => {
+        const keepAuth = appState.authenticated;
+        appState = Object.assign({}, DEFAULT_STATE, { authenticated: keepAuth });
+        syncUIWithState();
+        showToast("Todas as configurações foram redefinidas para o padrão.");
+      });
+
+      /* ================= 6. ENTRADA NO JOGO (ANDROID) ================= */
+      function attemptLaunchAndroidApp(appName, packageName) {
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const intentUri = `intent://#Intent;package=${packageName};scheme=android-app;end`;
+
+        launchStatusBox.textContent = `Solicitando ao Android a abertura de ${appName} (${packageName})...`;
+        showToast(`Solicitação enviada para ${appName}.`);
+
+        if (!isAndroid) {
+          launchStatusBox.textContent =
+            `Dispositivo atual não identificado como Android. No celular Android, o sistema tentará abrir o pacote "${packageName}" se estiver instalado.`;
+          return;
+        }
+
+        let appSwitched = false;
+        const onVisibilityChange = () => {
+          if (document.hidden) {
+            appSwitched = true;
+            launchStatusBox.textContent = `O navegador entrou em segundo plano após solicitar ${appName}.`;
+          }
+        };
+
+        document.addEventListener("visibilitychange", onVisibilityChange, { once: true });
+
+        try {
+          window.location.href = intentUri;
+        } catch (err) {
+          launchStatusBox.textContent =
+            `Não foi possível iniciar a solicitação para ${appName}. Verifique se o aplicativo está instalado no Android.`;
+          return;
+        }
+
+        setTimeout(() => {
+          document.removeEventListener("visibilitychange", onVisibilityChange);
+          if (!appSwitched && !document.hidden) {
+            launchStatusBox.textContent =
+              `O sistema Android não confirmou a abertura de ${appName}. Verifique se o aplicativo (${packageName}) está instalado ou se o navegador bloqueou o redirecionamento externo.`;
+          }
+        }, 1800);
+      }
+
+      btnLaunchFF.addEventListener("click", () => {
+        attemptLaunchAndroidApp("Free Fire", "com.dts.freefireth");
+      });
+
+      btnLaunchFFMax.addEventListener("click", () => {
+        attemptLaunchAndroidApp("Free Fire MAX", "com.dts.freefiremax");
+      });
+
+      /* ================= SINCRONIZAÇÃO DE ESTADO ================= */
+      function syncUIWithState() {
+        chkAimRage.checked = appState.aimRage;
+        chkAimLegit.checked = appState.aimLegit;
+        chkShowFov.checked = appState.showFov;
+        fovCircle.classList.toggle("active", appState.showFov);
+
+        rangeAimFov.value = appState.aimFov;
+        updateFovVisual();
+
+        puxadaButtons.forEach((b) => {
+          b.classList.toggle("active", b.getAttribute("data-value") === appState.puxada);
+        });
+
+        triggerButtons.forEach((b) => {
+          b.classList.toggle("active", b.getAttribute("data-value") === appState.triggerMode);
+        });
+
+        updateFooterSummary();
+
+        chkEspLine.checked = appState.espLine;
+        previewEspLine.classList.toggle("visible", appState.espLine);
+
+        chkEspBox.checked = appState.espBox;
+        previewEspBox.classList.toggle("visible", appState.espBox);
+
+        chkEspHealth.checked = appState.espHealth;
+        previewEspHealth.classList.toggle("visible", appState.espHealth);
+
+        chkEspName.checked = appState.espName;
+        previewEspName.classList.toggle("visible", appState.espName);
+
+        applyThemeColor(appState.themeColor);
+
+        chkNeonAnim.checked = appState.neonAnimations;
+        document.body.classList.toggle("neon-disabled", !appState.neonAnimations);
+      }
+
+      syncUIWithState();
+    })();
+  </script>
+</body>
+</html>
+
